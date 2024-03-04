@@ -50,7 +50,9 @@ int main(){
     int current_floor;
     int maxOrder = 0;
     int minOrder = 0;
-    char orderArray[4];
+    char orderArray[N_FLOORS];
+    for (int i = 0; i<N_FLOORS; i++) {orderArray[i]='N';}
+    int posArray[2*N_FLOORS-1] = {0};
 
 
     while(1){
