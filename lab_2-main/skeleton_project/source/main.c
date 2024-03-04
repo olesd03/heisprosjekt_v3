@@ -38,7 +38,7 @@ int main(){
 
             if (elevio_floorSensor() != -1) {
                 if (current_floor == minOrder) {
-                    StopAndLight();  // Add later
+                    if (StopAndLight(orderArray)) {break;} 
                     UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder); // Add later
                     if (current_floor > minOrder) {
                         elev_state = down;
