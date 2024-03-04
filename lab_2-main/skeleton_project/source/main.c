@@ -142,16 +142,17 @@ int main(){
 
 
 
-        label_emstop:
+        
         while(elev_state == emstop) {
-            DeleteOrders();
-            UpdateOrdersEmpty();
+            bool breakOuter = false;
+            DeleteOrders();     // Add later
+            UpdateOrdersEmpty(); // Add later
             elevio_motorDirection(DIRN_STOP);
 
             if (elevio_floorSensor() != -1) {
                 UpdateCurrentFloor(&current_floor);
 
-                elevio_stopLamp(true);
+                elevio_doorOpenLamp(true);
                 double Time = 3;
                 while (Time >= 0) {
                     if (elevio_obstruction()) {
@@ -160,24 +161,32 @@ int main(){
                     else {
                         Time -= 0.01;
                     }
+
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (elevio_stopButton()) {
-                        goto label_emstop;
+                    if (breakAndEmstop(&elev_state)) {
+                        breakOuter=true;
+                        break;
                     }
                     else {
                         AddOrders(); // Add later
                     }
                 }
-                elevio_stopLamp(false);
+                if (breakOuter) {break;}
+                elevio_doorOpenLamp(false);
+                
 
+                UpdateOrdersEmpty();  // Add later
                 while (orders_empty) {
                     AddOrders();          // Add later
                     UpdateOrdersEmpty();  // Add later
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (elevio_stopButton()) {
-                        goto label_emstop;
+                    if (breakAndEmstop(&elev_state)) {
+                        breakOuter=true;
+                        break;
                     }
                 }
+                if (breakOuter) {break;}
+
 
                 UpdateCurrentFloorInOrders(); // Add later
                 UpdateMinAndMaxOrder();
@@ -197,13 +206,16 @@ int main(){
                 UpdateOrdersEmpty(orderArray);
                 while (orders_empty) {
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (elevio_stopButton()) {
-                        goto label_emstop;
+                    if (breakAndEmstop(&elev_state)) {
+                        breakOuter=true;
+                        break;
                     }
                     AddOrders(orderArray); // Add later
                     UpdateOrdersEmpty(orderArray, &orders_empty); // Add later
                 }
+                if (breakOuter) {break;}
                 ChangeStateBetween(&elev_state); // Add later
+                
             }
         }
     }
