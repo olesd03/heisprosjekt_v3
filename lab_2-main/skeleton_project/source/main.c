@@ -62,6 +62,7 @@ int main(){
                     }
                 }
             }
+            UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
         }
         while(elev_state == up) {
             elevio_motorDirection(DIRN_UP);
@@ -98,6 +99,7 @@ int main(){
                     }
                 }
             }
+            UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
         }
         while(elev_state == idle) {
             GoUpToClosest();
@@ -121,6 +123,7 @@ int main(){
                     }
                 }
             }
+            UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
         }
 
 
@@ -149,6 +152,7 @@ int main(){
                         Time -= 0.01;
                     }
 
+                    UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                     if (EmstopInit(&elev_state)) {breakOuter=true;  break;}
                     else {
@@ -163,6 +167,7 @@ int main(){
 
                 UpdateOrdersEmpty(orderArray, &orders_empty);  
                 while (orders_empty) {
+                    UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
                     AddOrders(orderArray);          
                     UpdateOrdersEmpty(orderArray, &orders_empty);  
                     if (EmstopInit(&elev_state)) {breakOuter=true; break;}
@@ -189,6 +194,7 @@ int main(){
             else {
                 UpdateOrdersEmpty(orderArray, &orders_empty);
                 while (orders_empty) {
+                    UpdateAndPrintStates(posArray, orderArray, &minOrder, &maxOrder, &current_floor, &orders_empty, &floor_stop, &current_floor_in_orders, &elev_state);
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                     if (EmstopInit(&elev_state)) {breakOuter=true; break;}
                     elevio_stopLamp(0);
@@ -197,7 +203,7 @@ int main(){
                 }
                 if (breakOuter) {break;}
                 ActuateDirAndCabLight(orderArray);
-                changeStateBetween(posArray, orderArray, &elev_state);
+                ChangeStateBetween(posArray, orderArray, &elev_state);
             }
         }
     }

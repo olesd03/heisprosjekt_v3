@@ -1,5 +1,5 @@
 #include "utilities_elev.h"
-#include "lightArray.h"
+
 
 
 void GoUpToClosest(void) {
@@ -42,6 +42,19 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
             Time -= 0.010;
         }
 
+        //Printer tilstander
+        printf("{");
+        for (int i = 0; i<(N_FLOORS-1); i++) {
+            printf("%d",orderArray[i]);
+        }
+        printf("%d}\n",orderArray[N_FLOORS-1]);
+        printf("current_floor: %d\n", *current_floor);
+        printf("elev_state: %d\n", *elev_state);
+        printf("current_floor_in_orders: %d\n\n\n",*current_floor_in_orders);
+
+
+
+
         nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
         AddOrders(orderArray); //Add later
         UpdateCurrentFloorInOrders(orderArray, current_floor, current_floor_in_orders);
@@ -77,7 +90,7 @@ void UpdateFloorStop(const char orderArray[], const int *current_floor, bool *fl
     }
 }
 
-void changeStateBetween(int posArray[], char orderArray[], state *elev_state) {
+void ChangeStateBetween(int posArray[], char orderArray[], state *elev_state) {
     int pos_index = getPosIndex(posArray);
     int imm_array[N_FLOORS] = {0};
     for (int i = 0; i<N_FLOORS; i++) {
@@ -98,3 +111,55 @@ void changeStateBetween(int posArray[], char orderArray[], state *elev_state) {
         }
     }
 }
+
+void UpdateAndPrintStates(const int posArray[],const char orderArray[],int *minOrder, int *maxOrder, int *current_floor,
+                         bool *orders_empty, bool *floor_stop, bool *current_floor_in_orders, state *elev_state) {
+    UpdateCurrentFloor(current_floor);
+    UpdateOrdersEmpty(orderArray, orders_empty);
+    UpdateFloorStop(orderArray, current_floor, floor_stop, elev_state);
+    UpdateCurrentFloorInOrders(orderArray, current_floor, current_floor_in_orders);
+
+    printf("{");
+    for (int i = 0; i<(2*N_FLOORS-2); i++) {
+        printf("%d",posArray[i]);
+    }
+    printf("%d}\n",posArray[2*N_FLOORS-2]);
+
+    printf("{");
+    for (int i = 0; i<(N_FLOORS-1); i++) {
+        printf("%d",orderArray[i]);
+    }
+    printf("%d}\n",orderArray[N_FLOORS-1]);
+
+    printf("Min- og MaxOrder: %d, %d\n", *minOrder, *maxOrder);
+    printf("orders_empty: %d\n", *orders_empty);
+    printf("floor_stop: %d\n", *floor_stop);
+    printf("current_floor_in_orders: %d\n", current_floor_in_orders);
+    printf("elev_state: %d\n\n\n", *elev_state);
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+state elev_state = idle;
+bool floor_stop = false;
+bool orders_empty;
+bool current_floor_in_orders;
+int current_floor;
+int maxOrder = 0;
+int minOrder = 0;
+char orderArray[N_FLOORS];
+for (int i = 0; i<N_FLOORS; i++) {orderArray[i]='N';}
+int posArray[2*N_FLOORS-1] = {0};
+*/
