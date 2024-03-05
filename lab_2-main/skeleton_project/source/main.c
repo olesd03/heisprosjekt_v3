@@ -38,13 +38,13 @@ int main(){
 
             if (elevio_floorSensor() != -1) {
                 if (current_floor == minOrder) {
-                    if (StopAndLight(orderArray)) {break;} 
+                    if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;} 
                     UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder); // Add later
-                    if (current_floor > minOrder) {
+                    if ((current_floor > minOrder) && (minOrder != 0)) {
                         elev_state = down;
                     }
                     else {
-                        if (current_floor < maxOrder) {
+                        if ((current_floor < maxOrder) && (maxOrder != 0)) {
                             elev_state = up;
                         }
                         else {
@@ -96,11 +96,12 @@ int main(){
             nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
             if (breakAndEmstop(&elev_state)) {break;}
             GoUpToClosest();
-            UpdateOrdersEmpty(); //Add later
-            if (!orders_empty) { 
-                UpdateCurrentInOrders(); //Add later
+            UpdateOrdersEmpty(orderArray, &orders_empty); 
+            if (!orders_empty) {
+                UpdateCurrentFloor(&current_floor);
+                UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders);
                 if (current_floor_in_orders) {
-                    StopAndLight();
+                    if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;}
                 }
                 else {
                     if (current_floor > minOrder) {

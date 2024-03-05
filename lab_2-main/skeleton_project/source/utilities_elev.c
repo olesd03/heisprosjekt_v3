@@ -1,6 +1,5 @@
 #include "utilities_elev.h"
-#include "driver/elevio.h"
-#include <time.h>
+
 
 void GoUpToClosest(void) {
     while (elevio_floorSensor() == -1) {
@@ -29,7 +28,7 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
     elevio_doorOpenLamp(1);
     while(Time >= 0) {
         if (elevio_stopButton()) {
-            elev_state = emstop;
+            *elev_state = emstop;
             return true;
         }
 
@@ -42,12 +41,14 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
 
         nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
         AddOrders(orderArray); //Add later
-        UpdateCurrentFloorInOrders(&current_floor_in_orders); //Add later
-        UpdateCurrentFloor(current_floor);
+        UpdateCurrentFloorInOrders(orderArray, current_floor, current_floor_in_orders);
+        UpdateCurrentFloor(&current_floor);
         if (*current_floor_in_orders) {
-            DeleteOrder(orderArray, current_floor);
+            DeleteOrderWithSensor(orderArray);
             Time = 3.0;
         }
     }
+    DeleteOrderWithSensor(orderArray);
     elevio_doorOpenLamp(0);
+
 }
