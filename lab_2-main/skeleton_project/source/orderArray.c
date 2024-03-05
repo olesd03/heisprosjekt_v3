@@ -1,4 +1,5 @@
 #include "orderArray.h"
+#include <stdio.h>
 
 
 void ChangePos(int posArray[], const int *pos_index) {
@@ -21,17 +22,15 @@ int getPosIndex(const int posArray[]) {
             break;
         }
     }
+    return 2*N_FLOORS-1;
 }
 
 void UpdatePosArray(int posArray[], const state *elev_state) {
-    int pos_index;
+    int pos_index = getPosIndex(posArray);
     int floor_sensor = elevio_floorSensor();
     if (pos_index == (2*N_FLOORS-1)) {
             pos_index = 2*(floor_sensor);
             ChangePos(posArray, &pos_index);
-    }
-    else {
-        pos_index = getPosIndex(posArray);
     }
 
 
