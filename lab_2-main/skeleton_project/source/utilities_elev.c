@@ -7,7 +7,7 @@ void GoUpToClosest(void) {
     }
 }
 
-bool BreakAndEmstop(state *elev_state) {
+bool EmstopInit(state *elev_state) {
     if (elevio_stopButton()) {
         *elev_state = emstop;
         return true;
@@ -53,7 +53,7 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
 
 }
 
-void UpdateFloorStop(const char orderArray, const int *current_floor, bool *floor_stop, const state *elev_state) {
+void UpdateFloorStop(const char orderArray[], const int *current_floor, bool *floor_stop, const state *elev_state) {
     *floor_stop = false;
     char order = orderArray[( *current_floor - 1)];
     if (order != 'N') {

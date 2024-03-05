@@ -23,10 +23,11 @@ int getPosIndex(const int posArray[]) {
     }
 }
 
-void UpdatePosArray(int posArray[], int *floor_sensor, state *elev_state) {
+void UpdatePosArray(int posArray[], const state *elev_state) {
     int pos_index;
+    int floor_sensor = elevio_floorSensor();
     if (pos_index == (2*N_FLOORS-1)) {
-            pos_index = 2*(*floor_sensor);
+            pos_index = 2*(floor_sensor);
             ChangePos(posArray, &pos_index);
     }
     else {
@@ -34,7 +35,7 @@ void UpdatePosArray(int posArray[], int *floor_sensor, state *elev_state) {
     }
 
 
-    if (*floor_sensor == -1) {
+    if (floor_sensor == -1) {
         if (*elev_state == up) {
             if ((pos_index % 2) == 0) {
                 pos_index ++;
@@ -68,7 +69,7 @@ void UpdatePosArray(int posArray[], int *floor_sensor, state *elev_state) {
     }
 }
 
-void printPosArray(int posArray[]) {
+void printPosArray(const int posArray[]) {
     printf("[%d,%d,%d,%d,%d,%d,%d]\n",posArray[0],posArray[1],posArray[2],posArray[3],posArray[4],posArray[5],posArray[6]);
 }
 
@@ -76,7 +77,8 @@ void printPosArray(int posArray[]) {
 
 
 
-void UpdateMinAndMaxOrder(const char orderArray[], int *maxOrder, int *minOrder) {
+
+void UpdateMinAndMaxOrder(const char orderArray[], int *minOrder, int *maxOrder) {
     int temp_max = 0;
     int temp_min = 0;
     for (int i=0; i<N_FLOORS; i++) {

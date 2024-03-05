@@ -30,13 +30,15 @@ int main(){
     while(1){
         while(elev_state == down) {
             nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-            if (breakAndEmstop(&elev_state)) {break;}
+            if (EmstopInit(&elev_state)) {break;}
             elevio_motorDirection(DIRN_DOWN);
             UpdateCurrentFloor(&current_floor);
+            UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders);
             AddOrders(orderArray);
-            
+            UpdatePosArray(posArray, &elev_state);
 
             if (elevio_floorSensor() != -1) {
+                UpdatePosArray(posArray, &elev_state);
                 if (current_floor == minOrder) {
                     if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;} 
                     UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder); 
@@ -53,7 +55,7 @@ int main(){
                     }
                 }
                 else {
-                    UpdateFloorStop(orderArray, &current_floor, &floor_stop); // Add later
+                    UpdateFloorStop(orderArray, &current_floor, &floor_stop, &elev_state); 
                     if (floor_stop) {
                         if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;}
                     }
@@ -62,15 +64,18 @@ int main(){
         }
         while(elev_state == up) {
             nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-            if (breakAndEmstop(&elev_state)) {break;}
+            if (EmstopInit(&elev_state)) {break;}
             elevio_motorDirection(DIRN_UP);
             UpdateCurrentFloor(&current_floor);
+            UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders);
             AddOrders(orderArray);
+            UpdatePosArray(posArray, &elev_state);
             
 
             if (elevio_floorSensor() != -1) {
+                UpdatePosArray(posArray, &elev_state);
                 if (current_floor == maxOrder) {
-                    StopAndLight();
+                    if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;} 
                     UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder);
                     if (current_floor < maxOrder) {
                         elev_state = up;
@@ -85,16 +90,16 @@ int main(){
                     }
                 }
                 else {
-                    UpdateFloorStop(orderArray, &orderArray);
+                    UpdateFloorStop(orderArray, &current_floor, &floor_stop, &elev_state);
                     if (floor_stop) {
-                        StopAndLight();
+                        if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;} 
                     }
                 }
             }
         }
         while(elev_state == idle) {
             nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-            if (breakAndEmstop(&elev_state)) {break;}
+            if (EmstopInit(&elev_state)) {break;}
             GoUpToClosest();
             UpdateOrdersEmpty(orderArray, &orders_empty); 
             if (!orders_empty) {
@@ -121,7 +126,7 @@ int main(){
         while(elev_state == emstop) {
             bool breakOuter = false;
             DeleteOrders();     // Add later
-            UpdateOrdersEmpty(); // Add later
+            UpdateOrdersEmpty(orderArray, &orders_empty); 
             elevio_motorDirection(DIRN_STOP);
 
             if (elevio_floorSensor() != -1) {
@@ -138,33 +143,27 @@ int main(){
                     }
 
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (breakAndEmstop(&elev_state)) {
-                        breakOuter=true;
-                        break;
-                    }
+                    if (EmstopInit(&elev_state)) {breakOuter=true;  break;}
                     else {
-                        AddOrders(); // Add later
+                        AddOrders(orderArray); 
                     }
                 }
                 if (breakOuter) {break;}
                 elevio_doorOpenLamp(false);
                 
 
-                UpdateOrdersEmpty();  // Add later
+                UpdateOrdersEmpty(orderArray, &orders_empty);  
                 while (orders_empty) {
-                    AddOrders();          // Add later
-                    UpdateOrdersEmpty();  // Add later
+                    AddOrders(orderArray);          
+                    UpdateOrdersEmpty(orderArray, &orders_empty);  
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (breakAndEmstop(&elev_state)) {
-                        breakOuter=true;
-                        break;
-                    }
+                    if (EmstopInit(&elev_state)) {breakOuter=true; break;}
                 }
                 if (breakOuter) {break;}
 
 
-                UpdateCurrentFloorInOrders(); // Add later
-                UpdateMinAndMaxOrder();
+                UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders); 
+                UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder);
                 if (current_floor_in_orders) {
                     elev_state = idle;
                 }   
@@ -178,15 +177,12 @@ int main(){
                 }
             }
             else {
-                UpdateOrdersEmpty(orderArray);
+                UpdateOrdersEmpty(orderArray, &orders_empty);
                 while (orders_empty) {
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-                    if (breakAndEmstop(&elev_state)) {
-                        breakOuter=true;
-                        break;
-                    }
-                    AddOrders(orderArray); // Add later
-                    UpdateOrdersEmpty(orderArray, &orders_empty); // Add later
+                    if (EmstopInit(&elev_state)) {breakOuter=true; break;}
+                    AddOrders(orderArray); 
+                    UpdateOrdersEmpty(orderArray, &orders_empty); 
                 }
                 if (breakOuter) {break;}
                 ChangeStateBetween(&elev_state); // Add later

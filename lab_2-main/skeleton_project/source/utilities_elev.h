@@ -17,6 +17,7 @@ typedef enum {
 
 
 void GoUpToClosest(void);
-bool BreakAndEmstop(state *elev_state);
+bool EmstopInit(state *elev_state);
 void UpdateCurrentFloor(int *current_floor);
 bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool *current_floor_in_orders);
+void UpdateFloorStop(const char orderArray[], const int *current_floor, bool *floor_stop, const state *elev_state);
