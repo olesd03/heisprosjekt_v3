@@ -29,12 +29,13 @@ int main(){
 
     while(1){
         while(elev_state == down) {
+            elevio_motorDirection(DIRN_DOWN);
             nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
             if (EmstopInit(&elev_state)) {break;}
-            elevio_motorDirection(DIRN_DOWN);
             UpdateCurrentFloor(&current_floor);
             UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders);
             AddOrders(orderArray);
+            ActuateDirAndCabLight(orderArray);
             UpdatePosArray(posArray, &elev_state);
 
             if (elevio_floorSensor() != -1) {
@@ -63,13 +64,14 @@ int main(){
             }
         }
         while(elev_state == up) {
-            nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-            if (EmstopInit(&elev_state)) {break;}
             elevio_motorDirection(DIRN_UP);
+            nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
             UpdateCurrentFloor(&current_floor);
             UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders);
             AddOrders(orderArray);
+            ActuateDirAndCabLight(orderArray);
             UpdatePosArray(posArray, &elev_state);
+            if (EmstopInit(&elev_state)) {break;}
             
 
             if (elevio_floorSensor() != -1) {
@@ -98,9 +100,11 @@ int main(){
             }
         }
         while(elev_state == idle) {
-            nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
-            if (EmstopInit(&elev_state)) {break;}
             GoUpToClosest();
+            nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
+            AddOrders(orderArray);
+            ActuateDirAndCabLight(orderArray);
+            if (EmstopInit(&elev_state)) {break;}
             UpdateOrdersEmpty(orderArray, &orders_empty); 
             if (!orders_empty) {
                 UpdateCurrentFloor(&current_floor);
@@ -125,9 +129,12 @@ int main(){
         
         while(elev_state == emstop) {
             bool breakOuter = false;
-            DeleteAllOrders(orderArray);    
+            DeleteAllOrders(orderArray);
+            ActuateDirAndCabLight(orderArray);
+            elevio_motorDirection(DIRN_STOP);    
             UpdateOrdersEmpty(orderArray, &orders_empty); 
-            elevio_motorDirection(DIRN_STOP);
+            elevio_stopLamp(1);
+            
 
             if (elevio_floorSensor() != -1) {
                 UpdateCurrentFloor(&current_floor);
@@ -145,7 +152,9 @@ int main(){
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                     if (EmstopInit(&elev_state)) {breakOuter=true;  break;}
                     else {
-                        AddOrders(orderArray); 
+                        elevio_stopLamp(0);
+                        AddOrders(orderArray);
+                        ActuateDirAndCabLight(orderArray); 
                     }
                 }
                 if (breakOuter) {break;}
@@ -156,11 +165,12 @@ int main(){
                 while (orders_empty) {
                     AddOrders(orderArray);          
                     UpdateOrdersEmpty(orderArray, &orders_empty);  
-                    nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                     if (EmstopInit(&elev_state)) {breakOuter=true; break;}
+                    elevio_stopLamp(0);
+                    nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                 }
                 if (breakOuter) {break;}
-
+                ActuateDirAndCabLight(orderArray);
 
                 UpdateCurrentFloorInOrders(orderArray, &current_floor, &current_floor_in_orders); 
                 UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder);
@@ -181,10 +191,12 @@ int main(){
                 while (orders_empty) {
                     nanosleep(&(struct timespec){0, 10*1000*1000}, NULL);
                     if (EmstopInit(&elev_state)) {breakOuter=true; break;}
+                    elevio_stopLamp(0);
                     AddOrders(orderArray); 
                     UpdateOrdersEmpty(orderArray, &orders_empty); 
                 }
                 if (breakOuter) {break;}
+                ActuateDirAndCabLight(orderArray);
                 changeStateBetween(posArray, orderArray, &elev_state);
             }
         }

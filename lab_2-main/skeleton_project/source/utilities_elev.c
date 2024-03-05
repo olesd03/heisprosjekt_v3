@@ -1,4 +1,5 @@
 #include "utilities_elev.h"
+#include "lightArray.h"
 
 
 void GoUpToClosest(void) {
@@ -26,6 +27,8 @@ void UpdateCurrentFloor(int *current_floor) {
 bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool *current_floor_in_orders) {
     double Time = 3;
     elevio_doorOpenLamp(1);
+    DeleteOrderWithSensor(orderArray);
+    ActuateDirAndCabLight(orderArray);
     while(Time >= 0) {
         if (elevio_stopButton()) {
             *elev_state = emstop;
@@ -48,7 +51,6 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
             Time = 3.0;
         }
     }
-    DeleteOrderWithSensor(orderArray);
     elevio_doorOpenLamp(0);
 
 }
