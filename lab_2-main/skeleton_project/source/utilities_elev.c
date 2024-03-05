@@ -52,3 +52,25 @@ bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool
     elevio_doorOpenLamp(0);
 
 }
+
+void UpdateFloorStop(const char orderArray, const int *current_floor, bool *floor_stop, const state *elev_state) {
+    *floor_stop = false;
+    char order = orderArray[( *current_floor - 1)];
+    if (order != 'N') {
+        if (order != 'C') {
+            if (order != 'D') {
+                if (*elev_state == up) {
+                    *floor_stop = true;
+                }
+            }
+            else {
+                if (*elev_state == down) {
+                    *floor_stop = true;
+                }
+            }
+        }
+        else {
+            *floor_stop = true;
+        }
+    }
+}

@@ -16,7 +16,7 @@ int main(){
     goUpToClosest();
 
     state elev_state = idle;
-    bool floor_stop;
+    bool floor_stop = false;
     bool orders_empty;
     bool current_floor_in_orders;
     int current_floor;
@@ -39,7 +39,7 @@ int main(){
             if (elevio_floorSensor() != -1) {
                 if (current_floor == minOrder) {
                     if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;} 
-                    UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder); // Add later
+                    UpdateMinAndMaxOrder(orderArray, &minOrder, &maxOrder); 
                     if ((current_floor > minOrder) && (minOrder != 0)) {
                         elev_state = down;
                     }
@@ -53,9 +53,9 @@ int main(){
                     }
                 }
                 else {
-                    UpdateFloorStop(orderArray, &current_floor); // Add later
+                    UpdateFloorStop(orderArray, &current_floor, &floor_stop); // Add later
                     if (floor_stop) {
-                        StopAndLight();
+                        if (StopAndLight(orderArray, &current_floor, &elev_state, &current_floor_in_orders)) {break;}
                     }
                 }
             }

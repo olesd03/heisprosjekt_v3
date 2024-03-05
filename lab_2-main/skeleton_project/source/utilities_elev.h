@@ -4,10 +4,10 @@
 #include "orderArray.h"
 
 typedef enum {
-    down=-1,
-    up=0,
-    idle=1,
-    emstop=2
+    down = -1,
+    up = 0,
+    idle = 1,
+    emstop = 2
 } state;
 
 typedef enum {
@@ -19,3 +19,4 @@ typedef enum {
 void GoUpToClosest(void);
 bool BreakAndEmstop(state *elev_state);
 void UpdateCurrentFloor(int *current_floor);
+bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool *current_floor_in_orders);

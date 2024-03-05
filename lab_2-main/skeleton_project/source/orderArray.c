@@ -124,14 +124,15 @@ void DeleteOrderWithSensor(char orderArray[]) {
 
 void AddOrders(char orderArray[]) {
     for (int i=0; i<N_FLOORS; i++) {
-        if (elevio_callButton(i, BUTTON_HALL_UP)) {
-            orderArray[i] = 'U';
-        }
-        else if (elevio_callButton(i, BUTTON_HALL_DOWN)) {
+        if (elevio_callButton(i, BUTTON_HALL_DOWN)) {
             orderArray[i] = 'D';
+        }
+        else if (elevio_callButton(i, BUTTON_HALL_UP)) {
+            orderArray[i] = 'U';
         }
         else if (elevio_callButton(i, BUTTON_CAB)) {
             orderArray[i] = 'C';
         }
     }
 }
+
