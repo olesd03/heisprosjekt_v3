@@ -21,3 +21,4 @@ bool EmstopInit(state *elev_state);
 void UpdateCurrentFloor(int *current_floor);
 bool StopAndLight(char orderArray[], int *current_floor, state *elev_state, bool *current_floor_in_orders);
 void UpdateFloorStop(const char orderArray[], const int *current_floor, bool *floor_stop, const state *elev_state);
+void changeStateBetween(int posArray[], char orderArray[], state *elev_state);

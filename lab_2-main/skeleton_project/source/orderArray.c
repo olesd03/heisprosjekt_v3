@@ -122,6 +122,12 @@ void DeleteOrderWithSensor(char orderArray[]) {
         }
     }   
 }
+
+void DeleteAllOrders(char orderArray[]) {
+    for (int i=0; i<N_FLOORS; i++) {
+        orderArray[i] = 'N';
+    }   
+}
     
 
 void AddOrders(char orderArray[]) {

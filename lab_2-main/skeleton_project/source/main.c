@@ -125,7 +125,7 @@ int main(){
         
         while(elev_state == emstop) {
             bool breakOuter = false;
-            DeleteOrders();     // Add later
+            DeleteAllOrders(orderArray);    
             UpdateOrdersEmpty(orderArray, &orders_empty); 
             elevio_motorDirection(DIRN_STOP);
 
@@ -185,8 +185,7 @@ int main(){
                     UpdateOrdersEmpty(orderArray, &orders_empty); 
                 }
                 if (breakOuter) {break;}
-                ChangeStateBetween(&elev_state); // Add later
-                
+                changeStateBetween(posArray, orderArray, &elev_state);
             }
         }
     }

@@ -74,3 +74,25 @@ void UpdateFloorStop(const char orderArray[], const int *current_floor, bool *fl
         }
     }
 }
+
+void changeStateBetween(int posArray[], char orderArray[], state *elev_state) {
+    int pos_index = getPosIndex(posArray);
+    int imm_array[N_FLOORS] = {0};
+    for (int i = 0; i<N_FLOORS; i++) {
+        if (orderArray[i] != 'N') {
+            imm_array[2*i] = 1; 
+        }
+    }
+    for (int i = 0; i<(2*N_FLOORS - 1); i += 2) {
+        if (imm_array[i] == 1) {
+            if (pos_index > i) {
+                *elev_state = down;
+                break;
+            }
+            else if (pos_index < i) {
+                *elev_state = up;
+                break;
+            }
+        }
+    }
+}
